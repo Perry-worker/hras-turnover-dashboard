@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT 意大利区 · 离职数据分析看板</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --primary: #1A365D;
+    --primary-light: #234B7A;
+    --primary-lighter: #2C5F8E;
+    --accent: #2563EB;
+    --bg: #F0F4F8;
+    --card-bg: #FFFFFF;
+    --text: #1E293B;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
+    --border: #E2E8F0;
+    --green: #10B981;
+    --green-bg: #ECFDF5;
+    --yellow: #F59E0B;
+    --yellow-bg: #FFFBEB;
+    --red: #EF4444;
+    --red-bg: #FEF2F2;
+    --blue-bg: #EFF6FF;
+    --radius: 12px;
+    --shadow: 0 1px 3px 0 rgba(0,0,0,0.06), 0 1px 2px -1px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0F2440 0%, #1A365D 50%, #234B7A 100%);
+    color: #FFFFFF;
+    padding: 32px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -5%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    z-index: 1;
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .header .subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,0.65);
+    margin-top: 6px;
+  }
+  .header .meta {
+    text-align: right;
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.8;
+  }
+  .header .meta span {
+    display: block;
+  }
+
+  /* Container */
+  .container {
+    max-width: 1340px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+  }
+
+  /* KPI Row */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+    margin-top: -20px;
+    position: relative;
+    z-index: 2;
+  }
+  .kpi-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--shadow-md);
+    border-left: 4px solid var(--primary);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(26,54,93,0.12);
+  }
+  .kpi-card.warn { border-left-color: var(--red); }
+  .kpi-card.info { border-left-color: var(--accent); }
+  .kpi-card.alert { border-left-color: var(--yellow); }
+  .kpi-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+  }
+  .kpi-value {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 4px 0;
+    line-height: 1.2;
+  }
+  .kpi-card.warn .kpi-value { color: var(--red); }
+  .kpi-card.info .kpi-value { color: var(--accent); }
+  .kpi-card.alert .kpi-value { color: var(--yellow); }
+  .kpi-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 14px;
+    padding-left: 12px;
+    border-left: 3px solid var(--accent);
+    letter-spacing: 0.5px;
+  }
+
+  /* Chart Grid */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .chart-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .chart-card.full {
+    grid-column: 1 / -1;
+  }
+  .chart-card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+  }
+  .chart-wrap canvas {
+    width: 100% !important;
+  }
+
+  /* Table Section */
+  .table-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .table-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .table-header h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  /* Filters */
+  .filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .filter-select {
+    padding: 7px 32px 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--text);
+    background: #FAFBFC;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748B'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: border-color 0.2s;
+  }
+  .filter-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+  }
+
+  /* Export Button */
+  .btn-export {
+    padding: 8px 18px;
+    background: var(--primary);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-export:hover {
+    background: var(--primary-light);
+  }
+
+  /* Table */
+  .table-wrap {
+    overflow-x: auto;
+    max-height: 520px;
+    overflow-y: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+  }
+  th {
+    background: #F1F5F9;
+    padding: 12px 14px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--primary);
+    white-space: nowrap;
+    border-bottom: 2px solid var(--border);
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr {
+    transition: background 0.15s;
+  }
+  tbody tr:hover {
+    background: #F8FAFC;
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .badge-red { background: var(--red-bg); color: #DC2626; }
+  .badge-yellow { background: var(--yellow-bg); color: #D97706; }
+  .badge-green { background: var(--green-bg); color: #059669; }
+  .badge-blue { background: var(--blue-bg); color: #2563EB; }
+
+  /* Indicator Dot */
+  .indicator {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  .indicator-red { background: var(--red); }
+  .indicator-yellow { background: var(--yellow); }
+  .indicator-green { background: var(--green); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .kpi-row { grid-template-columns: 1fr; }
+    .header { padding: 24px 20px; }
+    .container { padding: 16px 12px; }
+  }
+
+  @media print {
+    body { background: #fff; }
+    .header { background: #1A365D !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .kpi-card, .chart-card, .table-card { break-inside: avoid; box-shadow: none; border: 1px solid #E2E8F0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>IT 意大利区 · 离职数据分析看板</h1>
+      <div class="subtitle">GOFO IT Italy — 花名册离职人员全景分析</div>
+    </div>
+    <div class="meta">
+      <span>数据范围：2025/06 – 2026/05</span>
+      <span>报告生成：2026-06-09</span>
+      <span>HRBP | EU 技术部</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- KPI Cards -->
+  <div class="kpi-row">
+    <div class="kpi-card warn">
+      <div class="kpi-label"><span class="indicator indicator-red"></span>离职总人数</div>
+      <div class="kpi-value">40</div>
+      <div class="kpi-desc">花名册全员离职</div>
+    </div>
+    <div class="kpi-card warn">
+      <div class="kpi-label"><span class="indicator indicator-red"></span>试用期内辞职</div>
+      <div class="kpi-value">25</div>
+      <div class="kpi-desc">占比 62.5%</div>
+    </div>
+    <div class="kpi-card info">
+      <div class="kpi-label"><span class="indicator indicator-yellow"></span>平均司龄</div>
+      <div class="kpi-value">0.8<span style="font-size:18px;">年</span></div>
+      <div class="kpi-desc">最短 0.2 年 / 最长 8.2 年</div>
+    </div>
+    <div class="kpi-card alert">
+      <div class="kpi-label"><span class="indicator indicator-yellow"></span>离职高峰月</div>
+      <div class="kpi-value">9<span style="font-size:18px;">人/月</span></div>
+      <div class="kpi-desc">2026-02、2026-05 各 9 人</div>
+    </div>
+  </div>
+
+  <!-- Chart Row 1: Trend + Type -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>📈 离职趋势（月度）</h3>
+      <div class="chart-wrap"><canvas id="chartTrend"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>🥧 离职类型分布</h3>
+      <div class="chart-wrap" style="max-width:360px; margin:0 auto;"><canvas id="chartType"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Chart Row 2: Reason + Department -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>📊 离职原因分析</h3>
+      <div class="chart-wrap"><canvas id="chartReason"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>🏢 部门分布（四级）</h3>
+      <div class="chart-wrap"><canvas id="chartDept"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Chart Row 3: Level + Color -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>🎯 职级分布</h3>
+      <div class="chart-wrap"><canvas id="chartLevel"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>🔖 领色分布</h3>
+      <div class="chart-wrap" style="max-width:320px; margin:0 auto;"><canvas id="chartColor"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Detail Table -->
+  <div class="section">
+    <div class="table-card">
+      <div class="table-header">
+        <h3>📋 离职人员明细</h3>
+        <div class="filters">
+          <select class="filter-select" id="filterType" onchange="applyFilters()">
+            <option value="">全部离职类型</option>
+            <option value="试用期内辞职">试用期内辞职</option>
+            <option value="合同期内辞职">合同期内辞职</option>
+            <option value="未标注">未标注</option>
+          </select>
+          <select class="filter-select" id="filterReason" onchange="applyFilters()">
+            <option value="">全部离职原因</option>
+            <option value="发展因素">发展因素</option>
+            <option value="能力不足">能力不足</option>
+            <option value="工作态度">工作态度</option>
+            <option value="工作内容">工作内容</option>
+            <option value="身体因素">身体因素</option>
+            <option value="薪资因素">薪资因素</option>
+            <option value="家庭因素">家庭因素</option>
+            <option value="人员优化">人员优化</option>
+            <option value="未标注">未标注</option>
+          </select>
+          <select class="filter-select" id="filterDept" onchange="applyFilters()">
+            <option value="">全部部门</option>
+          </select>
+          <button class="btn-export" onclick="exportTable()">导出 CSV</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>姓名</th>
+              <th>部门</th>
+              <th>入职日期</th>
+              <th>离职日期</th>
+              <th>司龄(年)</th>
+              <th>离职类型</th>
+              <th>离职原因</th>
+              <th>职级</th>
+              <th>领色</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    HRAS · EU 技术部 · 数据来源：花名册 | 报告仅供内部管理参考
+  </div>
+</div>
+
+<script>
+// ===== DATA =====
+const employees = [
+  {name:"Salvatore Muglia", dept:"北部战区", entry:"2026-04-29", leave:"2026-05-11", tenure:0.2, type:"试用期内辞职", reason:"身体因素", level:"P1-1", color:"蓝领"},
+  {name:"Michele Zhao", dept:"中转管理部", entry:"2026-04-24", leave:"2026-05-22", tenure:0.2, type:"试用期内辞职", reason:"能力不足", level:"P1-1", color:"白领"},
+  {name:"Patrizia Tilixiati", dept:"行政采购部", entry:"2026-04-27", leave:"2026-05-25", tenure:0.2, type:"试用期内辞职", reason:"能力不足", level:"P1-2", color:"白领"},
+  {name:"Miah Mugakkir", dept:"米兰枢纽仓", entry:"2026-04-15", leave:"2026-04-27", tenure:0.2, type:"试用期内辞职", reason:"工作态度", level:"P1-1", color:"蓝领"},
+  {name:"Federico Inerme", dept:"米兰枢纽仓", entry:"2026-04-13", leave:"2026-05-06", tenure:0.2, type:"试用期内辞职", reason:"能力不足", level:"P1-2", color:"蓝领"},
+  {name:"Miqueias Santos", dept:"终端管理部", entry:"2026-03-18", leave:"2026-04-16", tenure:0.3, type:"试用期内辞职", reason:"能力不足", level:"P1-3", color:"白领"},
+  {name:"杨艳泓", dept:"技术支持部", entry:"2026-03-30", leave:"2026-05-31", tenure:0.3, type:"合同期内辞职", reason:"发展因素", level:"P1-2", color:"白领"},
+  {name:"刘驰", dept:"米兰枢纽仓", entry:"2026-04-01", leave:"2026-05-18", tenure:0.2, type:"合同期内辞职", reason:"发展因素", level:"P1-3", color:"白领"},
+  {name:"蒋文祺", dept:"米兰枢纽仓", entry:"2026-03-16", leave:"2026-04-07", tenure:0.3, type:"试用期内辞职", reason:"发展因素", level:"P1-2", color:"白领"},
+  {name:"李艺飞", dept:"北部战区", entry:"2026-03-02", leave:"2026-03-26", tenure:0.3, type:"试用期内辞职", reason:"能力不足", level:"P1-2", color:"白领"},
+  {name:"周津逸", dept:"北部战区", entry:"2026-03-05", leave:"2026-03-12", tenure:0.3, type:"试用期内辞职", reason:"工作态度", level:"P1-2", color:"白领"},
+  {name:"Angela Nava", dept:"罗马枢纽仓", entry:"2026-03-02", leave:"2026-03-02", tenure:0.3, type:"试用期内辞职", reason:"发展因素", level:"P1-3", color:"白领"},
+  {name:"Alaa Abdelbaset", dept:"北部战区", entry:"2026-03-02", leave:"2026-03-06", tenure:0.3, type:"试用期内辞职", reason:"能力不足", level:"P1-2", color:"蓝领"},
+  {name:"卢庆贺", dept:"米兰枢纽仓", entry:"2026-02-10", leave:"2026-03-06", tenure:0.3, type:"试用期内辞职", reason:"发展因素", level:"P1-3", color:"白领"},
+  {name:"Waqar Ali Virk", dept:"罗马枢纽仓", entry:"2026-02-06", leave:"2026-02-06", tenure:0.3, type:"试用期内辞职", reason:"工作内容", level:"P1-1", color:"蓝领"},
+  {name:"Alessandro Ciavola", dept:"南部战区", entry:"2026-01-22", leave:"2026-02-11", tenure:0.4, type:"试用期内辞职", reason:"能力不足", level:"P1-2", color:"白领"},
+  {name:"Sunday Igboeli", dept:"北部战区", entry:"2026-01-22", leave:"2026-05-28", tenure:0.4, type:"合同期内辞职", reason:"薪资因素", level:"P1-1", color:"蓝领"},
+  {name:"张朝勋", dept:"终端管理部", entry:"2026-01-26", leave:"2026-03-31", tenure:0.4, type:"未标注", reason:"未标注", level:"P3-1", color:"灰领"},
+  {name:"Edward Adams", dept:"罗马枢纽仓", entry:"2026-01-12", leave:"2026-05-21", tenure:0.4, type:"合同期内辞职", reason:"工作态度", level:"M3-1", color:"白领"},
+  {name:"林六勤", dept:"北部战区", entry:"2026-01-08", leave:"2026-02-05", tenure:0.4, type:"试用期内辞职", reason:"能力不足", level:"P1-2", color:"蓝领"},
+  {name:"Fabio Coviello", dept:"米兰枢纽仓", entry:"2026-01-26", leave:"2026-02-17", tenure:0.4, type:"试用期内辞职", reason:"发展因素", level:"P1-1", color:"蓝领"},
+  {name:"张重耳", dept:"终端管理部", entry:"2025-12-09", leave:"2026-01-29", tenure:0.5, type:"试用期内辞职", reason:"家庭因素", level:"P1-2", color:"白领"},
+  {name:"刘艾鑫", dept:"终端管理部", entry:"2026-01-19", leave:"2026-02-04", tenure:0.4, type:"试用期内辞职", reason:"能力不足", level:"P1-2", color:"白领"},
+  {name:"杨舰", dept:"米兰枢纽仓", entry:"2025-11-03", leave:"2026-02-05", tenure:0.6, type:"合同期内辞职", reason:"发展因素", level:"P2-1", color:"白领"},
+  {name:"Edmond De Leon", dept:"米兰枢纽仓", entry:"2025-10-06", leave:"2025-10-06", tenure:0.7, type:"试用期内辞职", reason:"发展因素", level:"P1-3", color:"白领"},
+  {name:"赵纯子", dept:"北部战区", entry:"2025-11-17", leave:"2026-02-13", tenure:0.6, type:"试用期内辞职", reason:"发展因素", level:"P1-1", color:"白领"},
+  {name:"Davide Toscano", dept:"米兰枢纽仓", entry:"2025-09-11", leave:"2026-02-24", tenure:0.8, type:"合同期内辞职", reason:"工作态度", level:"P1-1", color:"蓝领"},
+  {name:"Bruno Maddiona", dept:"米兰枢纽仓", entry:"2025-09-15", leave:"2025-10-10", tenure:0.8, type:"试用期内辞职", reason:"发展因素", level:"P1-1", color:"蓝领"},
+  {name:"王珊娜", dept:"北部战区", entry:"2025-09-15", leave:"2026-05-21", tenure:0.8, type:"合同期内辞职", reason:"工作内容", level:"M2-2", color:"白领"},
+  {name:"任进", dept:"质量管理部", entry:"2025-08-20", leave:"2026-03-16", tenure:0.8, type:"未标注", reason:"未标注", level:"M2-3", color:"灰领"},
+  {name:"徐杰", dept:"米兰枢纽仓", entry:"2025-08-11", leave:"2025-09-26", tenure:0.8, type:"合同期内辞职", reason:"发展因素", level:"P1-1", color:"蓝领"},
+  {name:"陈楚彬", dept:"中转管理部", entry:"2018-04-16", leave:"2025-12-31", tenure:8.2, type:"未标注", reason:"未标注", level:"P2-1", color:"灰领"},
+  {name:"蓝欢", dept:"质量管理部", entry:"2025-07-23", leave:"2025-10-15", tenure:0.9, type:"未标注", reason:"未标注", level:"P1-3", color:"灰领"},
+  {name:"Lucia Zantonini", dept:"行政采购部", entry:"2025-07-07", leave:"2025-08-07", tenure:0.9, type:"合同期内辞职", reason:"能力不足", level:"P1-2", color:"白领"},
+  {name:"Diego Gabelli", dept:"终端管理部", entry:"2025-08-18", leave:"2025-12-17", tenure:0.8, type:"试用期内辞职", reason:"能力不足", level:"P1-1", color:"白领"},
+  {name:"苏莞尔", dept:"米兰站", entry:"2025-06-13", leave:"2025-07-04", tenure:1.0, type:"试用期内辞职", reason:"工作态度", level:"P1-1", color:"蓝领"},
+  {name:"董金月", dept:"米兰枢纽仓", entry:"2025-06-16", leave:"2025-10-17", tenure:1.0, type:"合同期内辞职", reason:"发展因素", level:"P1-2", color:"白领"},
+  {name:"高畅", dept:"IT 意大利区", entry:"2024-12-16", leave:"2025-06-12", tenure:1.5, type:"试用期内辞职", reason:"人员优化", level:"P1-2", color:"白领"},
+  {name:"杨晓敏", dept:"米兰枢纽仓", entry:"2025-05-05", leave:"2025-09-16", tenure:1.1, type:"试用期内辞职", reason:"发展因素", level:"P1-2", color:"白领"},
+  {name:"冯彦淳", dept:"质量管理部", entry:"2024-08-21", leave:"2026-02-14", tenure:1.8, type:"未标注", reason:"未标注", level:"P1-2", color:"白领"},
+];
+
+// ===== COLOR PALETTE =====
+const colors = {
+  primary:'#1A365D', blue:'#2563EB', blueLight:'#60A5FA',
+  red:'#EF4444', redLight:'#FCA5A5',
+  green:'#10B981', greenLight:'#6EE7B7',
+  yellow:'#F59E0B', yellowLight:'#FCD34D',
+  orange:'#F97316',
+  chart:[
+    '#1A365D','#2563EB','#10B981','#F59E0B','#EF4444',
+    '#8B5CF6','#EC4899','#06B6D4','#F97316','#84CC16',
+    '#6366F1','#14B8A6'
+  ]
+};
+
+// ===== POPULATE DEPT FILTER =====
+const depts = [...new Set(employees.map(e=>e.dept))].sort();
+const deptSelect = document.getElementById('filterDept');
+depts.forEach(d=>{ const o=document.createElement('option'); o.value=d; o.textContent=d; deptSelect.appendChild(o); });
+
+// ===== RENDER TABLE =====
+function applyFilters(){
+  const typeFilter = document.getElementById('filterType').value;
+  const reasonFilter = document.getElementById('filterReason').value;
+  const deptFilter = document.getElementById('filterDept').value;
+
+  const filtered = employees.filter(e=>{
+    if(typeFilter && e.type !== typeFilter) return false;
+    if(reasonFilter && e.reason !== reasonFilter) return false;
+    if(deptFilter && e.dept !== deptFilter) return false;
+    return true;
+  });
+
+  const tbody = document.querySelector('#dataTable tbody');
+  tbody.innerHTML = filtered.map((e,i)=>{
+    let typeBadge = '';
+    if(e.type==='试用期内辞职') typeBadge = '<span class="badge badge-red">'+e.type+'</span>';
+    else if(e.type==='合同期内辞职') typeBadge = '<span class="badge badge-yellow">'+e.type+'</span>';
+    else typeBadge = '<span class="badge badge-blue">未标注</span>';
+
+    let reasonBadge = '';
+    if(e.reason==='发展因素') reasonBadge = '<span class="badge badge-blue">'+e.reason+'</span>';
+    else if(e.reason==='能力不足') reasonBadge = '<span class="badge badge-red">'+e.reason+'</span>';
+    else if(e.reason==='工作态度') reasonBadge = '<span class="badge badge-yellow">'+e.reason+'</span>';
+    else reasonBadge = '<span class="badge" style="background:#F1F5F9;color:#64748B">'+e.reason+'</span>';
+
+    return '<tr>'
+      +'<td>'+(i+1)+'</td>'
+      +'<td>'+e.name+'</td>'
+      +'<td>'+e.dept+'</td>'
+      +'<td>'+e.entry+'</td>'
+      +'<td>'+e.leave+'</td>'
+      +'<td>'+e.tenure.toFixed(1)+'</td>'
+      +'<td>'+typeBadge+'</td>'
+      +'<td>'+reasonBadge+'</td>'
+      +'<td>'+e.level+'</td>'
+      +'<td>'+e.color+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+// ===== EXPORT CSV =====
+function exportTable(){
+  const typeFilter = document.getElementById('filterType').value;
+  const reasonFilter = document.getElementById('filterReason').value;
+  const deptFilter = document.getElementById('filterDept').value;
+  const filtered = employees.filter(e=>{
+    if(typeFilter && e.type !== typeFilter) return false;
+    if(reasonFilter && e.reason !== reasonFilter) return false;
+    if(deptFilter && e.dept !== deptFilter) return false;
+    return true;
+  });
+  const BOM = '\uFEFF';
+  let csv = BOM + '序号,姓名,部门,入职日期,离职日期,司龄(年),离职类型,离职原因,职级,领色\n';
+  filtered.forEach((e,i)=>{
+    csv += (i+1)+','+e.name+','+e.dept+','+e.entry+','+e.leave+','+e.tenure+','+e.type+','+e.reason+','+e.level+','+e.color+'\n';
+  });
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='离职人员明细.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===== CHARTS =====
+Chart.defaults.font.family = '-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif';
+Chart.defaults.font.size = 12;
+
+// 1. Trend Chart
+(function(){
+  const months = ['2025-06','2025-07','2025-08','2025-09','2025-10','2025-11','2025-12','2026-01','2026-02','2026-03','2026-04','2026-05'];
+  const counts = [1,1,1,2,4,0,2,1,9,7,3,9];
+  new Chart(document.getElementById('chartTrend'),{
+    type:'line',
+    data:{
+      labels:months,
+      datasets:[{
+        label:'离职人数',
+        data:counts,
+        borderColor:colors.red,
+        backgroundColor:'rgba(239,68,68,0.08)',
+        borderWidth:2.5,
+        pointBackgroundColor:colors.red,
+        pointRadius:5,
+        pointHoverRadius:7,
+        tension:0.3,
+        fill:true
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      aspectRatio:2.0,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{beginAtZero:true, max:12, ticks:{stepSize:2}, grid:{color:'#F1F5F9'}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+})();
+
+// 2. Type Donut
+(function(){
+  new Chart(document.getElementById('chartType'),{
+    type:'doughnut',
+    data:{
+      labels:['试用期内辞职','合同期内辞职','未标注'],
+      datasets:[{
+        data:[25,10,5],
+        backgroundColor:['#EF4444','#F59E0B','#94A3B8'],
+        borderColor:'#FFFFFF',
+        borderWidth:3
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      aspectRatio:1.6,
+      plugins:{
+        legend:{position:'bottom',labels:{padding:18,usePointStyle:true,pointStyleWidth:10}}
+      }
+    }
+  });
+})();
+
+// 3. Reason Bar
+(function(){
+  const reasons = ['发展因素','能力不足','工作态度','未标注','工作内容','身体因素','薪资因素','家庭因素','人员优化'];
+  const counts = [13,11,5,5,2,1,1,1,1];
+  const barColors = [
+    colors.blue,'#EF4444','#F59E0B','#94A3B8','#8B5CF6','#EC4899','#F97316','#06B6D4','#84CC16'
+  ];
+  new Chart(document.getElementById('chartReason'),{
+    type:'bar',
+    data:{
+      labels:reasons,
+      datasets:[{data:counts,backgroundColor:barColors,borderRadius:6,borderSkipped:false}]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      aspectRatio:2.0,
+      indexAxis:'y',
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{beginAtZero:true, max:16, ticks:{stepSize:4}, grid:{color:'#F1F5F9'}},
+        y:{grid:{display:false}}
+      }
+    }
+  });
+})();
+
+// 4. Department Bar
+(function(){
+  const deptLabels = ['米兰枢纽仓','北部战区','终端管理部','质量管理部','罗马枢纽仓','行政采购部','中转管理部','其他'];
+  const deptCounts = [13,8,5,3,3,2,2,4];
+  new Chart(document.getElementById('chartDept'),{
+    type:'bar',
+    data:{
+      labels:deptLabels,
+      datasets:[{
+        data:deptCounts,
+        backgroundColor:['#1A365D','#2563EB','#3B82F6','#60A5FA','#93C5FD','#BFDBFE','#DBEAFE','#94A3B8'],
+        borderRadius:6,borderSkipped:false
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      aspectRatio:2.0,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{beginAtZero:true, max:16, ticks:{stepSize:4}, grid:{color:'#F1F5F9'}},
+        x:{grid:{display:false}, ticks:{maxRotation:30,font:{size:11}}}
+      }
+    }
+  });
+})();
+
+// 5. Level Bar
+(function(){
+  const levels = ['P1-1','P1-2','P1-3','P2-1','M3-1','P3-1','M2-3','M2-2'];
+  const lvlCounts = [13,15,6,2,1,1,1,1];
+  const lvlColors = levels.map(l=> l.startsWith('P')?colors.blue:l.startsWith('M')?'#F59E0B':'#94A3B8');
+  new Chart(document.getElementById('chartLevel'),{
+    type:'bar',
+    data:{
+      labels:levels,
+      datasets:[{data:lvlCounts,backgroundColor:lvlColors,borderRadius:6,borderSkipped:false}]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      aspectRatio:2.0,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{beginAtZero:true,ticks:{stepSize:4},grid:{color:'#F1F5F9'}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+})();
+
+// 6. Color Pie
+(function(){
+  new Chart(document.getElementById('chartColor'),{
+    type:'pie',
+    data:{
+      labels:['白领','蓝领','灰领','未标注'],
+      datasets:[{
+        data:[20,13,4,3],
+        backgroundColor:['#2563EB','#10B981','#8B5CF6','#94A3B8'],
+        borderColor:'#FFFFFF',borderWidth:3
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:true,
+      aspectRatio:1.6,
+      plugins:{
+        legend:{position:'bottom',labels:{padding:18,usePointStyle:true,pointStyleWidth:10}}
+      }
+    }
+  });
+})();
+
+// Initial table render
+applyFilters();
+</script>
+
+</body>
+</html>
