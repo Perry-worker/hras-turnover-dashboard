@@ -24,6 +24,10 @@
     --red: #EF4444;
     --red-bg: #FEF2F2;
     --blue-bg: #EFF6FF;
+    --orange: #F97316;
+    --orange-bg: #FFF7ED;
+    --purple: #8B5CF6;
+    --purple-bg: #F5F3FF;
     --radius: 12px;
     --shadow: 0 1px 3px 0 rgba(0,0,0,0.06), 0 1px 2px -1px rgba(0,0,0,0.06);
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
@@ -182,6 +186,144 @@
     width: 100% !important;
   }
 
+  /* ========== Management Insights Section ========== */
+  .insight-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .insight-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .insight-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+  }
+  .insight-header .icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .insight-header.biz .icon { background: #EFF6FF; color: var(--accent); }
+  .insight-header.hr .icon { background: #FEF3C7; color: #D97706; }
+  .insight-header.biz { border-left: 4px solid var(--accent); }
+  .insight-header.hr { border-left: 4px solid var(--yellow); }
+
+  .insight-body {
+    padding: 16px 20px;
+  }
+
+  .insight-item {
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed #E8ECF0;
+  }
+  .insight-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  .insight-tag {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .insight-tag.high { background: var(--red-bg); color: #DC2626; }
+  .insight-tag.medium { background: var(--yellow-bg); color: #D97706; }
+  .insight-tag.low { background: var(--green-bg); color: #059669; }
+  .insight-tag.suggest { background: var(--blue-bg); color: #2563EB; }
+  .insight-tag.alert { background: var(--orange-bg); color: #C2410C; }
+  .insight-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .insight-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+  .insight-stat {
+    display: inline-block;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  /* Actions Table */
+  .action-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .action-header {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--primary);
+    border-left: 4px solid var(--green);
+  }
+  .action-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .action-table th {
+    background: #F1F5F9;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--primary);
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  .action-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .action-table tr:last-child td {
+    border-bottom: none;
+  }
+  .action-table tbody tr {
+    transition: background 0.15s;
+  }
+  .action-table tbody tr:hover {
+    background: #F8FAFC;
+  }
+  .priority-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  .priority-dot.p1 { background: var(--red); }
+  .priority-dot.p2 { background: var(--yellow); }
+  .priority-dot.p3 { background: var(--green); }
+
   /* Table Section */
   .table-card {
     background: var(--card-bg);
@@ -295,6 +437,7 @@
   .badge-yellow { background: var(--yellow-bg); color: #D97706; }
   .badge-green { background: var(--green-bg); color: #059669; }
   .badge-blue { background: var(--blue-bg); color: #2563EB; }
+  .badge-orange { background: var(--orange-bg); color: #C2410C; }
 
   /* Indicator Dot */
   .indicator {
@@ -306,6 +449,8 @@
   .indicator-red { background: var(--red); }
   .indicator-yellow { background: var(--yellow); }
   .indicator-green { background: var(--green); }
+  .indicator-blue { background: var(--accent); }
+  .indicator-orange { background: var(--orange); }
 
   /* Footer */
   .footer {
@@ -319,6 +464,7 @@
   @media (max-width: 1024px) {
     .kpi-row { grid-template-columns: repeat(2, 1fr); }
     .chart-grid { grid-template-columns: 1fr; }
+    .insight-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 640px) {
     .kpi-row { grid-template-columns: 1fr; }
@@ -329,7 +475,7 @@
   @media print {
     body { background: #fff; }
     .header { background: #1A365D !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .kpi-card, .chart-card, .table-card { break-inside: avoid; box-shadow: none; border: 1px solid #E2E8F0; }
+    .kpi-card, .chart-card, .table-card, .insight-card, .action-card { break-inside: avoid; box-shadow: none; border: 1px solid #E2E8F0; }
   }
 </style>
 </head>
@@ -409,6 +555,223 @@
     <div class="chart-card">
       <h3>🔖 领色分布</h3>
       <div class="chart-wrap" style="max-width:320px; margin:0 auto;"><canvas id="chartColor"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ========== Management Insights Section ========== -->
+  <div class="section">
+    <div class="section-title">💡 管理化意见</div>
+
+    <div class="insight-grid">
+      <!-- Business Leader Side -->
+      <div class="insight-card">
+        <div class="insight-header biz">
+          <div class="icon">🎯</div>
+          <span>业务负责人关注项</span>
+        </div>
+        <div class="insight-body">
+
+          <div class="insight-item">
+            <span class="insight-tag high">🔴 高优先级</span>
+            <div class="insight-title">业务连续性风险 — 关键岗位人才断层</div>
+            <div class="insight-desc">
+              <span class="insight-stat">13 人</span> 来自米兰枢纽仓（占比 33%），该仓为意大利区核心运营节点。
+              且管理岗（M2-2、M2-3、M3-1）共 <span class="insight-stat">3 人</span> 全部离职，
+              中层管理出现真空，直接影响业务指令传达和执行效率。
+            </div>
+          </div>
+
+          <div class="insight-item">
+            <span class="insight-tag high">🔴 高优先级</span>
+            <div class="insight-title">试用期人员流失严重 — 投入产出比堪忧</div>
+            <div class="insight-desc">
+              <span class="insight-stat">25 人（62.5%）</span> 在试用期内即辞职，
+              入职最快仅 <span class="insight-stat">2 个月</span> 便离开。
+              意味着招聘、入职培训、工位设备等前期投入全部沉没，
+              业务部门持续处于"招人-流失-再招人"的恶性循环中。
+            </div>
+          </div>
+
+          <div class="insight-item">
+            <span class="insight-tag medium">🟡 中优先级</span>
+            <div class="insight-title">能力与岗位错配 — 影响团队整体产出</div>
+            <div class="insight-desc">
+              <span class="insight-stat">11 人（27.5%）</span> 因"能力不足"离职，
+              其中蓝领岗位 <span class="insight-stat">6 人</span>、白领岗位 <span class="insight-stat">5 人</span>。
+              建议业务负责人与 HR 协同，<strong>重新梳理 5 个蓝领高流失岗位的 JD 和胜任力模型</strong>，
+              确保招聘标准与实际工作需求一致。
+            </div>
+          </div>
+
+          <div class="insight-item">
+            <span class="insight-tag medium">🟡 中优先级</span>
+            <div class="insight-title">发展因素外流 — 人才保留机制缺失</div>
+            <div class="insight-desc">
+              <span class="insight-stat">13 人（32.5%）</span> 因"发展因素"离开，为第一大离职原因。
+              意大利区一线岗位（P1-1 ~ P1-3 共 <span class="insight-stat">34 人</span>）晋升通道狭窄，
+              建议业务侧推动<strong>意大利区本地化职业发展路径设计</strong>，明确从 P1 到 P2/P3 的晋升标准和时间线。
+            </div>
+          </div>
+
+          <div class="insight-item">
+            <span class="insight-tag low">🟢 持续关注</span>
+            <div class="insight-title">薪资竞争力 — 局部诱因</div>
+            <div class="insight-desc">
+              虽仅 <span class="insight-stat">1 人</span> 直接因薪资因素离职，
+              但结合"发展因素"（13人）和"工作内容"（2人）来看，
+              可能暗示意大利区薪酬包在同区域同行中缺乏竞争力。
+              建议业务负责人安排<strong>意大利区同岗市场薪资对标调研</strong>。
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- HR Side -->
+      <div class="insight-card">
+        <div class="insight-header hr">
+          <div class="icon">🤝</div>
+          <span>HR 侧关注项</span>
+        </div>
+        <div class="insight-body">
+
+          <div class="insight-item">
+            <span class="insight-tag high">🔴 高优先级</span>
+            <div class="insight-title">招聘质量审核 — 源头把关失效</div>
+            <div class="insight-desc">
+              "能力不足"（<span class="insight-stat">11 人</span>）+ "工作态度"（<span class="insight-stat">5 人</span>）
+              合计 <span class="insight-stat">16 人（40%）</span>，属于招聘筛选阶段即可识别的问题。
+              建议对意大利区的<strong>面试评价标准、技能测试机制、背景调查流程</strong>进行专项审查，
+              特别是北部战区（能力不足 4 人/该部门总离职 8 人，占比 50%）。
+            </div>
+          </div>
+
+          <div class="insight-item">
+            <span class="insight-tag high">🔴 高优先级</span>
+            <div class="insight-title">试用期管理机制 — 流失预警缺失</div>
+            <div class="insight-desc">
+              25 人试用期内流失，且 2026 年 2-5 月集中爆发 <span class="insight-stat">28 人</span>（占总量 70%）。
+              建议 HR 建立<strong>意大利区试用期月度流失监控看板</strong>，设置 10% 流失率预警阈值，
+              一旦超过立即启动根因分析会议。同时在新员工入职第 <span class="insight-stat">15 天、30 天、60 天</span>
+              设置关键节点沟通机制。
+            </div>
+          </div>
+
+          <div class="insight-item">
+            <span class="insight-tag medium">🟡 中优先级</span>
+            <div class="insight-title">白领 & 蓝领差异化策略缺失</div>
+            <div class="insight-desc">
+              白领 <span class="insight-stat">20 人</span>（50%）vs 蓝领 <span class="insight-stat">13 人</span>（32.5%），
+              两类人群的离职驱动因素差异显著：
+              <br>• <strong>蓝领</strong>：「能力不足」主导（6/13，46%），需优化技能培训
+              <br>• <strong>白领</strong>：「发展因素」主导（8/20，40%），需打通职业通道
+              <br>建议 HR 分别制定<strong>蓝领技能赋能计划</strong>和<strong>白领职业发展计划</strong>。
+            </div>
+          </div>
+
+          <div class="insight-item">
+            <span class="insight-tag medium">🟡 中优先级</span>
+            <div class="insight-title">灰领群体 — 异常离职需深度访谈</div>
+            <div class="insight-desc">
+              灰领 <span class="insight-stat">4 人</span> 中有 <span class="insight-stat">3 人</span> 离职原因标注为"未标注"，
+              且司龄较长（8.2 年、1.8 年、0.9 年），建议安排<strong>离职深度访谈</strong>，
+              了解中层技术骨干的真实离职动因，避免同类损失再次发生。
+            </div>
+          </div>
+
+          <div class="insight-item">
+            <span class="insight-tag suggest">🔵 机制建议</span>
+            <div class="insight-title">优化离职原因标签体系</div>
+            <div class="insight-desc">
+              当前有 <span class="insight-stat">5 人（12.5%）</span> 离职原因标注为"未标注"，
+              且这 5 人的离职类型也均为"未标注"。数据完整度不足将影响后续根因分析的准确性。
+              建议 HR 在离职流程中<strong>强制填写 2 级分类的离职原因</strong>，并定期校验数据质量。
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== 建议行动清单 ========== -->
+  <div class="section">
+    <div class="section-title">✅ 建议行动清单</div>
+    <div class="action-card">
+      <div class="action-header">
+        <span style="font-size:18px;">📋</span>
+        <span>基于数据分析的 7 项优先行动（P1 → P2 → P3 优先级）</span>
+      </div>
+      <table class="action-table">
+        <thead>
+          <tr>
+            <th style="width:60px;">优先级</th>
+            <th style="width:50px;">#</th>
+            <th>行动项</th>
+            <th>责任方</th>
+            <th>预期效果</th>
+            <th>参考数据</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="priority-dot p1"></span>P1</td>
+            <td>1</td>
+            <td>建立试用期月度流失监控看板，设置 10% 预警阈值</td>
+            <td><span class="badge badge-blue">HR</span> + <span class="badge badge-orange">业务</span></td>
+            <td>及时预警，避免批量流失</td>
+            <td>62.5% 试用期流出</td>
+          </tr>
+          <tr>
+            <td><span class="priority-dot p1"></span>P1</td>
+            <td>2</td>
+            <td>启动意大利区招聘质量专项审查（面试标准 + 技能测试）</td>
+            <td><span class="badge badge-blue">HR</span></td>
+            <td>降低"能力不足"类流失 50%</td>
+            <td>能力不足 11 人</td>
+          </tr>
+          <tr>
+            <td><span class="priority-dot p1"></span>P1</td>
+            <td>3</td>
+            <td>米兰枢纽仓人才保留紧急方案（核心运营节点）</td>
+            <td><span class="badge badge-orange">业务</span></td>
+            <td>稳定最大离职部门</td>
+            <td>米兰枢纽仓 13 人</td>
+          </tr>
+          <tr>
+            <td><span class="priority-dot p2"></span>P2</td>
+            <td>4</td>
+            <td>设计意大利区 P1→P2/P3 本地化职业发展路径</td>
+            <td><span class="badge badge-blue">HR</span></td>
+            <td>降低"发展因素"流失</td>
+            <td>发展因素 13 人</td>
+          </tr>
+          <tr>
+            <td><span class="priority-dot p2"></span>P2</td>
+            <td>5</td>
+            <td>制定蓝领技能赋能计划 + 白领职业发展计划双轨方案</td>
+            <td><span class="badge badge-blue">HR</span> + <span class="badge badge-orange">业务</span></td>
+            <td>差异化提升留任率</td>
+            <td>蓝领/白领流失差异</td>
+          </tr>
+          <tr>
+            <td><span class="priority-dot p2"></span>P2</td>
+            <td>6</td>
+            <td>灰领离职人员深度访谈，补充未标注离职原因</td>
+            <td><span class="badge badge-blue">HR</span></td>
+            <td>完整数据支撑根因分析</td>
+            <td>灰领 4 人未标注 3 人</td>
+          </tr>
+          <tr>
+            <td><span class="priority-dot p3"></span>P3</td>
+            <td>7</td>
+            <td>意大利区同岗市场薪资对标调研，评估薪酬竞争力</td>
+            <td><span class="badge badge-blue">HR</span></td>
+            <td>检视薪资竞争力</td>
+            <td>发展/薪资因素合计 14 人</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
